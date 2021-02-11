@@ -29,6 +29,13 @@ export default {
 	align-items: center;
 
 	.login-button {
+		background-color: black;
+		border: 1px solid red;
+		outline: none;
+		color: red;
+		padding: 5px 10px;
+		cursor: pointer;
+
 		padding: 10px 20px;
 		text-transform: uppercase;
 		font-size: 20px;

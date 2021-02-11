@@ -4,20 +4,6 @@
 	box-sizing: border-box;
 }
 
-button {
-	background-color: black;
-	border: 1px solid red;
-	outline: none;
-	color: red;
-	padding: 5px 10px;
-	cursor: pointer;
-
-	&.active {
-		background-color: red;
-		color: black;
-	}
-}
-
 #root {
 	min-height: 100vh;
 	background-color: black;
@@ -41,52 +27,6 @@ button {
 				padding-bottom: 20px;
 				margin-bottom: 20px;
 			}
-		}
-	}
-}
-
-.tracks {
-	display: flex;
-	justify-content: flex-start;
-	align-items: flex-start;
-	width: 100%;
-
-	.track-list {
-		display: flex;
-		flex-wrap: wrap;
-		width: 704px;
-		margin-right: 40px;
-		line-height: 0;
-
-		.track {
-			width: 32px;
-			height: 32px;
-			background-repeat: no-repeat;
-			background-size: cover;
-		}
-	}
-}
-
-.track-info {
-	width: 300px;
-	display: flex;
-	flex-direction: column;
-	position: sticky;
-	top: 100px;
-
-	.track-img {
-		flex: 1;
-		margin-bottom: 20px;
-	}
-
-	.track-name {
-		font-size: 18px;
-		margin-bottom: 2px;
-	}
-
-	.track-authors {
-		.author {
-			font-size: 14px;
 		}
 	}
 }

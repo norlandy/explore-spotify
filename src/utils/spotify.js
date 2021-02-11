@@ -1,4 +1,4 @@
-import axios from 'axios'
+import callApi from './callApi'
 
 export const LOGIN_URL = `https://accounts.spotify.com/authorize
 												?client_id=${process.env.VUE_APP_SPOTIFY_CLIENT_ID}
@@ -11,7 +11,7 @@ export const login = () => {
 }
 
 export const getTokenFromResponse = () => {
-	return window.location.hash
+	const hash = window.location.hash
 		.substring(1)
 		.split('&')
 		.reduce((initial, item) => {
@@ -19,30 +19,43 @@ export const getTokenFromResponse = () => {
 			initial[parts[0]] = decodeURIComponent(parts[1])
 
 			return initial
-		}, {}).access_token
+		}, {})
+
+	return hash.access_token
 }
 
-export const getMe = async token => {
-	const {data} = await axios.get('https://api.spotify.com/v1/me', {
-		headers: {
-			Authorization: `Bearer ${token}`,
-		},
-	})
-
-	return data
+export const getMe = async () => {
+	return callApi.get('/me')
 }
 
-export const getSavedTracks = async ({token, offset = 0, limit = 50}) => {
-	const {data} = await axios.get(
-		`https://api.spotify.com/v1/me/tracks?offset=${offset}&limit=${limit}&market=US`,
-		{
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		},
-	)
+export const getSavedTracks = async ({offset = 0, limit = 50}) => {
+	const data = await callApi.get(`/me/tracks?offset=${offset}&limit=${limit}&market=US`)
 
-	const tracks = data.items.map(item => item.track)
+	const tracks = data.items.map(item => ({
+		added_at: item.added_at,
+		...item.track,
+		uid: item.added_at + item.track.id,
+	}))
 
 	return tracks
+}
+
+export const getUsersTop = async ({type = 'tracks', offset = 0, timeRange = 'short_term'}) => {
+	const data = await callApi.get(
+		`https://api.spotify.com/v1/me/top/${type}?offset=${offset}&limit=50&time_range=${timeRange}`,
+	)
+
+	return data.items
+}
+
+export const getFollowedArtists = async ({after}) => {
+	let data
+
+	if (after) {
+		data = await callApi.get(`/me/following?type=artist&after=${after}&limit=50`)
+	} else {
+		data = await callApi.get(`/me/following?type=artist&limit=50`)
+	}
+
+	return data.artists.items
 }

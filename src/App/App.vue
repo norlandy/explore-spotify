@@ -7,39 +7,40 @@
 
 			<main class="content">
 				<div class="actions">
-					<button @click="handleSelect" data-action="saved_tracks">Your Saved Tracks</button>
+					<Chip
+						label="Your Saved Tracks"
+						value="saved_tracks"
+						:active="actionType === 'saved_tracks'"
+						:onClick="handleActionChange"
+					/>
+					<Chip
+						label="Your Followed Artists"
+						value="followed_artists"
+						:active="actionType === 'followed_artists'"
+						:onClick="handleActionChange"
+					/>
+					<Chip
+						label="Your Top Tracks"
+						value="top_tracks"
+						:active="actionType === 'top_tracks'"
+						:onClick="handleActionChange"
+					/>
+					<Chip
+						label="Your Top Artists"
+						value="top_artists"
+						:active="actionType === 'top_artists'"
+						:onClick="handleActionChange"
+					/>
 				</div>
 
-				<div class="tracks">
-					<div class="track-list">
-						<p v-if="loadingTracks">Loading...</p>
+				<div class="data">
+					<SavedTracks v-if="actionType === 'saved_tracks'" />
 
-						<div v-else v-for="track in tracks" :key="track.id">
-							<div
-								class="track"
-								v-if="track.preview_url"
-								:style="{backgroundImage: `url(${track.album.images[2].url})`}"
-								@mouseover="handleMouseOver(track)"
-								@mouseout="handleMouseOut"
-							></div>
-						</div>
-					</div>
+					<TopTracks v-if="actionType === 'top_tracks'" />
 
-					<div class="track-info" v-if="selectedTrack">
-						<img :src="selectedTrack.album.images[0].url" alt="" class="track-img" />
+					<TopArtists v-if="actionType === 'top_artists'" />
 
-						<p class="track-name">{{ selectedTrack.name }}</p>
-
-						<div class="track-authors">
-							<span
-								class="author"
-								v-for="(artist, index) in selectedTrack.artists"
-								:key="artist.name"
-							>
-								{{ artist.name }}{{ index !== selectedTrack.artists.length - 1 && ', ' }}
-							</span>
-						</div>
-					</div>
+					<FollowedArtists v-if="actionType === 'followed_artists'" />
 				</div>
 			</main>
 		</div>
@@ -47,24 +48,31 @@
 </template>
 
 <script>
-import Header from '@/components/Header'
-import Login from '@/components/Login'
+import Header from '@/components/layouts/Header'
+import Login from '@/components/layouts/Login'
+import SavedTracks from '@/components/SavedTracks'
+import TopTracks from '@/components/TopTracks'
+import TopArtists from '@/components/TopArtists'
+import FollowedArtists from '@/components/FollowedArtists'
+import Chip from '@/components/Chip'
 import * as spotify from '@/utils/spotify'
 
 export default {
 	components: {
 		Header,
 		Login,
+		SavedTracks,
+		TopTracks,
+		TopArtists,
+		FollowedArtists,
+		Chip,
 	},
 
 	data() {
 		return {
 			token: localStorage.getItem('token') || '',
 			me: null,
-			tracks: [],
-			selectedTrack: null,
-			audio: null,
-			loadingTracks: false,
+			actionType: '',
 		}
 	},
 
@@ -76,41 +84,8 @@ export default {
 
 	methods: {
 		login: spotify.login,
-		async getSavedTracks() {
-			this.loadingTracks = true
-
-			const tracks = await spotify.getSavedTracks({
-				token: this.token,
-				offset: this.tracks.length,
-			})
-
-			if (tracks.length) {
-				this.tracks = this.tracks.concat(tracks)
-				this.getSavedTracks()
-			} else {
-				this.loadingTracks = false
-			}
-		},
-		handleMouseOver(track) {
-			this.audio = new Audio(track.preview_url)
-			this.audio.volume = 0.5
-			this.audio.play()
-			this.selectedTrack = track
-		},
-		handleMouseOut() {
-			this.audio.pause()
-			this.audio = null
-			this.selectedTrack = null
-		},
-		handleSelect(e) {
-			e.target.classList.add('active')
-
-			if (e.target.dataset.action) {
-				switch (e.target.dataset.action) {
-					case 'saved_tracks':
-						this.getSavedTracks()
-				}
-			}
+		handleActionChange(value) {
+			this.actionType = value
 		},
 		exit() {
 			this.token = ''
@@ -122,7 +97,7 @@ export default {
 
 	async mounted() {
 		if (this.token) {
-			const me = await spotify.getMe(this.token)
+			const me = await spotify.getMe()
 
 			this.me = me
 		} else {
@@ -135,7 +110,7 @@ export default {
 
 				window.location.hash = ''
 
-				const me = await spotify.getMe(token)
+				const me = await spotify.getMe()
 
 				this.me = me
 			}
