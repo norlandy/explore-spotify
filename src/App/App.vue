@@ -1,71 +1,56 @@
 <template>
-	<div id="root">
+	<v-app class="app">
 		<Login v-if="!isAuth" />
 
-		<div class="page-wrapper" v-else>
+		<div v-else>
 			<Header :user="me" :exit="exit" />
 
-			<main class="content">
-				<div class="actions">
-					<Chip
-						label="Your Saved Tracks"
-						value="saved_tracks"
-						:active="actionType === 'saved_tracks'"
-						:onClick="handleActionChange"
-					/>
-					<Chip
-						label="Your Followed Artists"
-						value="followed_artists"
-						:active="actionType === 'followed_artists'"
-						:onClick="handleActionChange"
-					/>
-					<Chip
-						label="Your Top Tracks"
-						value="top_tracks"
-						:active="actionType === 'top_tracks'"
-						:onClick="handleActionChange"
-					/>
-					<Chip
-						label="Your Top Artists"
-						value="top_artists"
-						:active="actionType === 'top_artists'"
-						:onClick="handleActionChange"
-					/>
-				</div>
+			<v-main>
+				<v-container fluid>
+					<v-chip-group active-class="purple--text" column mandatory class="navigation">
+						<v-chip @click="handleChangeAction" data-action="saved_tracks"
+							>Your Saved Tracks</v-chip
+						>
+						<v-chip @click="handleChangeAction" data-action="followed_artists"
+							>Your Followed Artists</v-chip
+						>
+						<v-chip @click="handleChangeAction" data-action="top_tracks">Your Top Tracks</v-chip>
+						<v-chip @click="handleChangeAction" data-action="top_artists">Your Top Artists</v-chip>
+					</v-chip-group>
 
-				<div class="data">
-					<SavedTracks v-if="actionType === 'saved_tracks'" />
+					<div>
+						<SavedTracks v-if="actionType === 'saved_tracks'" />
+						<FollowedArtists v-if="actionType === 'followed_artists'" />
+						<TopTracks v-if="actionType === 'top_tracks'" />
+						<TopArtists v-if="actionType === 'top_artists'" />
+					</div>
+				</v-container>
+			</v-main>
 
-					<TopTracks v-if="actionType === 'top_tracks'" />
-
-					<TopArtists v-if="actionType === 'top_artists'" />
-
-					<FollowedArtists v-if="actionType === 'followed_artists'" />
-				</div>
-			</main>
+			<Footer />
 		</div>
-	</div>
+	</v-app>
 </template>
 
 <script>
 import Header from '@/components/layouts/Header'
+import Footer from '@/components/layouts/Footer'
 import Login from '@/components/layouts/Login'
 import SavedTracks from '@/components/SavedTracks'
+import FollowedArtists from '@/components/FollowedArtists'
 import TopTracks from '@/components/TopTracks'
 import TopArtists from '@/components/TopArtists'
-import FollowedArtists from '@/components/FollowedArtists'
-import Chip from '@/components/Chip'
 import * as spotify from '@/utils/spotify'
 
 export default {
 	components: {
 		Header,
+		Footer,
 		Login,
 		SavedTracks,
+		FollowedArtists,
 		TopTracks,
 		TopArtists,
-		FollowedArtists,
-		Chip,
 	},
 
 	data() {
@@ -83,9 +68,8 @@ export default {
 	},
 
 	methods: {
-		login: spotify.login,
-		handleActionChange(value) {
-			this.actionType = value
+		handleChangeAction(e) {
+			this.actionType = e.currentTarget.dataset.action
 		},
 		exit() {
 			this.token = ''
@@ -119,4 +103,14 @@ export default {
 }
 </script>
 
-<style lang="scss" src="./App.scss"></style>
+<style lang="scss">
+.app {
+	.navigation {
+		margin-bottom: 10px;
+	}
+
+	.title {
+		margin-bottom: 0;
+	}
+}
+</style>

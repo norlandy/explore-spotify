@@ -6,10 +6,6 @@ export const LOGIN_URL = `https://accounts.spotify.com/authorize
 												&response_type=token
 												&redirect_uri=${process.env.VUE_APP_SPOTIFY_REDIRECT_URI}`
 
-export const login = () => {
-	window.location.href = LOGIN_URL
-}
-
 export const getTokenFromResponse = () => {
 	const hash = window.location.hash
 		.substring(1)

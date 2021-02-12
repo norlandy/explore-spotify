@@ -1,24 +1,21 @@
 <template>
 	<div class="top-tracks">
+		<div class="header">
+			<p class="text-h5 title">Your Top Tracks</p>
+		</div>
+
 		<div class="sorting">
-			<Chip
-				label="Last Month"
-				value="short_term"
-				:active="timeRange === 'short_term'"
-				:onClick="handleTimeRangeChange"
-			/>
-			<Chip
-				label="Last 6 Month"
-				value="medium_term"
-				:active="timeRange === 'medium_term'"
-				:onClick="handleTimeRangeChange"
-			/>
-			<Chip
-				label="	All Time"
-				value="long_term"
-				:active="timeRange === 'long_term'"
-				:onClick="handleTimeRangeChange"
-			/>
+			<v-chip-group mandatory active-class="purple--text">
+				<v-chip data-value="short_term" @click="handleChangeTimeRange">
+					Last Month
+				</v-chip>
+				<v-chip data-value="medium_term" @click="handleChangeTimeRange">
+					Last 6 Month
+				</v-chip>
+				<v-chip data-value="long_term" @click="handleChangeTimeRange">
+					All Time
+				</v-chip>
+			</v-chip-group>
 		</div>
 
 		<div class="tracks">
@@ -30,14 +27,9 @@
 </template>
 
 <script>
-import Chip from '@/components/Chip'
 import {getUsersTop} from '../utils/spotify'
 
 export default {
-	components: {
-		Chip,
-	},
-
 	data() {
 		return {
 			tracks: [],
@@ -58,8 +50,8 @@ export default {
 				this.getTopTracks()
 			}
 		},
-		handleTimeRangeChange(value) {
-			this.timeRange = value
+		handleChangeTimeRange(e) {
+			this.timeRange = e.currentTarget.dataset.value
 
 			this.tracks = []
 			this.getTopTracks()
@@ -74,8 +66,12 @@ export default {
 
 <style lang="scss" scoped>
 .top-tracks {
+	.header {
+		margin-bottom: 12px;
+	}
+
 	.sorting {
-		margin-bottom: 20px;
+		margin-bottom: 12px;
 	}
 
 	.tracks {

@@ -2,13 +2,18 @@
 	<div class="saved-tracks">
 		<div class="track-list">
 			<div class="header">
-				<p class="title">Your Saved Tracks</p>
+				<p class="text-h5 title">Your Saved Tracks</p>
 
-				<select @change="handleSortChange">
-					<option value="by_save_date">Sort by save date</option>
-					<option value="by_artist">Sort by artist</option>
-					<option value="by_album">Sort by album</option>
-				</select>
+				<v-select
+					:items="sortedBy"
+					color="purple"
+					class="select"
+					item-color="purple"
+					v-model="selectedSort"
+					@change="handleChangeSort"
+					outlined
+					hide-details
+				></v-select>
 			</div>
 
 			<div class="tracks">
@@ -49,6 +54,23 @@ export default {
 			tracks: [],
 			selectedTrack: null,
 			audio: null,
+			selectedSort: {
+				value: 'by_save_date',
+			},
+			sortedBy: [
+				{
+					text: 'Sorted by save date',
+					value: 'by_save_date',
+				},
+				{
+					text: 'Sorted by artist',
+					value: 'by_artist',
+				},
+				{
+					text: 'Sorted by album',
+					value: 'by_album',
+				},
+			],
 		}
 	},
 
@@ -63,23 +85,23 @@ export default {
 				this.getSavedTracks()
 			}
 		},
-		handleSortChange(e) {
-			switch (e.target.value) {
+		handleChangeSort(value) {
+			switch (value) {
 				case 'by_save_date':
-					this.tracks = _.sortBy(this.tracks, track => track.added_at)
+					this.tracks = _.orderBy(this.tracks, ['added_at'], ['desc'])
 					break
 				case 'by_artist':
-					this.tracks = _.sortBy(this.tracks, track => track.artists[0].name)
+					this.tracks = _.orderBy(this.tracks, track => track.artists[0].name)
 					break
 				case 'by_album':
-					this.tracks = _.sortBy(this.tracks, track => track.album.name)
+					this.tracks = _.orderBy(this.tracks, track => track.album.name)
 					break
 			}
 		},
 		handleMouseOver(track) {
 			this.audio = new Audio(track.preview_url)
 			this.audio.volume = 0.5
-			this.audio.play()
+			this.audio.play().catch(() => {})
 
 			this.selectedTrack = track
 		},
@@ -109,13 +131,17 @@ export default {
 		margin-right: 40px;
 
 		.header {
+			margin-bottom: 16px;
 			display: flex;
-			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 20px;
+			justify-content: space-between;
 
 			.title {
-				font-size: 24px;
+				margin-right: 250px;
+			}
+
+			.select {
+				width: 100px !important;
 			}
 		}
 

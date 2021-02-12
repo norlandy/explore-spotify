@@ -1,15 +1,17 @@
 <template>
 	<div class="login">
-		<button class="login-button" @click="login">Log in with Spotify</button>
+		<v-btn color="purple" rounded dark x-large :href="LOGIN_URL">Log in with Spotify</v-btn>
 	</div>
 </template>
 
 <script>
-import {login} from '@/utils/spotify'
+import {LOGIN_URL} from '@/utils/spotify'
 
 export default {
-	methods: {
-		login,
+	data() {
+		return {
+			LOGIN_URL,
+		}
 	},
 }
 </script>
@@ -19,26 +21,11 @@ export default {
 	position: fixed;
 	top: 0;
 	left: 0;
-	background-color: black;
 	width: 100%;
 	height: 100%;
-	border: 1px solid red;
 	z-index: 1000;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
-	.login-button {
-		background-color: black;
-		border: 1px solid red;
-		outline: none;
-		color: red;
-		padding: 5px 10px;
-		cursor: pointer;
-
-		padding: 10px 20px;
-		text-transform: uppercase;
-		font-size: 20px;
-	}
 }
 </style>
