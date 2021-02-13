@@ -20,8 +20,11 @@
 
 					<div>
 						<SavedTracks v-if="actionType === 'saved_tracks'" />
+
 						<FollowedArtists v-if="actionType === 'followed_artists'" />
+
 						<TopTracks v-if="actionType === 'top_tracks'" />
+
 						<TopArtists v-if="actionType === 'top_artists'" />
 					</div>
 				</v-container>
@@ -36,10 +39,10 @@
 import Header from '@/components/layouts/Header'
 import Footer from '@/components/layouts/Footer'
 import Login from '@/components/layouts/Login'
-import SavedTracks from '@/components/SavedTracks'
-import FollowedArtists from '@/components/FollowedArtists'
 import TopTracks from '@/components/TopTracks'
 import TopArtists from '@/components/TopArtists'
+import SavedTracks from '@/components/SavedTracks'
+import FollowedArtists from '@/components/FollowedArtists'
 import * as spotify from '@/utils/spotify'
 
 export default {
@@ -57,7 +60,7 @@ export default {
 		return {
 			token: localStorage.getItem('token') || '',
 			me: null,
-			actionType: '',
+			actionType: 'saved_tracks',
 		}
 	},
 
@@ -72,10 +75,20 @@ export default {
 			this.actionType = e.currentTarget.dataset.action
 		},
 		exit() {
-			this.token = ''
-			this.me = null
+			const url = 'https://www.spotify.com/logout/'
+			const spotifyLogoutWindow = window.open(
+				url,
+				'Spotify Logout',
+				'width=700,height=500,top=40,left=40',
+			)
+			setTimeout(() => {
+				spotifyLogoutWindow.close()
 
-			localStorage.removeItem('token')
+				this.token = ''
+				this.me = null
+
+				localStorage.removeItem('token')
+			}, 2000)
 		},
 	},
 
@@ -106,7 +119,7 @@ export default {
 <style lang="scss">
 .app {
 	.navigation {
-		margin-bottom: 10px;
+		margin-bottom: 20px;
 	}
 
 	.title {

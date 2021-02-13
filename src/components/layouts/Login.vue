@@ -1,6 +1,6 @@
 <template>
 	<div class="login">
-		<v-btn color="purple" rounded dark x-large :href="LOGIN_URL">Log in with Spotify</v-btn>
+		<v-btn color="purple" rounded dark x-large @click="login">Log in with Spotify</v-btn>
 	</div>
 </template>
 
@@ -12,6 +12,12 @@ export default {
 		return {
 			LOGIN_URL,
 		}
+	},
+
+	methods: {
+		login() {
+			window.location.href = LOGIN_URL
+		},
 	},
 }
 </script>

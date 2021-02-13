@@ -36,14 +36,6 @@ export const getSavedTracks = async ({offset = 0, limit = 50}) => {
 	return tracks
 }
 
-export const getUsersTop = async ({type = 'tracks', offset = 0, timeRange = 'short_term'}) => {
-	const data = await callApi.get(
-		`https://api.spotify.com/v1/me/top/${type}?offset=${offset}&limit=50&time_range=${timeRange}`,
-	)
-
-	return data.items
-}
-
 export const getFollowedArtists = async ({after}) => {
 	let data
 
@@ -54,4 +46,12 @@ export const getFollowedArtists = async ({after}) => {
 	}
 
 	return data.artists.items
+}
+
+export const getUsersTop = async ({type = 'tracks', offset = 0, timeRange = 'short_term'}) => {
+	const data = await callApi.get(
+		`https://api.spotify.com/v1/me/top/${type}?offset=${offset}&limit=50&time_range=${timeRange}`,
+	)
+
+	return data.items
 }

@@ -1,5 +1,5 @@
 <template>
-	<v-app-bar app class="header" height="70">
+	<v-app-bar app class="header" height="70" hide-on-scroll>
 		<div class="logo-circle"></div>
 
 		<v-toolbar-title class="text-h4">Explore Spotify</v-toolbar-title>
@@ -20,7 +20,7 @@
 
 				<v-list>
 					<v-list-item link @click="exit">
-						<v-list-item-title>Log out</v-list-item-title>
+						<v-list-item-title>Log out of Spotify</v-list-item-title>
 					</v-list-item>
 				</v-list>
 			</v-menu>

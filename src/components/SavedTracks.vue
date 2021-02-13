@@ -1,23 +1,30 @@
 <template>
 	<div class="saved-tracks">
 		<div class="track-list">
-			<div class="header">
-				<p class="text-h5 title">Your Saved Tracks</p>
+			<v-container class="header" fluid>
+				<v-row align="center">
+					<v-col md="6" xs="12">
+						<p class="text-h5 title">Your Saved Tracks</p>
+					</v-col>
 
-				<v-select
-					:items="sortedBy"
-					color="purple"
-					class="select"
-					item-color="purple"
-					v-model="selectedSort"
-					@change="handleChangeSort"
-					outlined
-					hide-details
-				></v-select>
-			</div>
+					<v-spacer></v-spacer>
+
+					<v-col md="4" xs="12">
+						<v-select
+							:items="sortedBy"
+							v-model="selectedSort"
+							color="purple"
+							class="select"
+							item-color="purple"
+							solo
+							hide-details
+						></v-select>
+					</v-col>
+				</v-row>
+			</v-container>
 
 			<div class="tracks">
-				<div v-for="track in tracks" :key="track.uid">
+				<div v-for="track in sortedTracks" :key="track.uid">
 					<div
 						class="track"
 						v-if="track.preview_url"
@@ -32,10 +39,14 @@
 		<div class="track-info" v-if="selectedTrack">
 			<img :src="selectedTrack.album.images[0].url" alt="" class="track-img" />
 
-			<p class="track-name">{{ selectedTrack.name }}</p>
+			<p class="track-name text-body-1">{{ selectedTrack.name }}</p>
 
 			<div class="track-authors">
-				<span class="author" v-for="(artist, index) in selectedTrack.artists" :key="artist.name">
+				<span
+					class="author text-body-2"
+					v-for="(artist, index) in selectedTrack.artists"
+					:key="artist.name"
+				>
 					{{ artist.name }}{{ index !== selectedTrack.artists.length - 1 && ', ' }}
 				</span>
 			</div>
@@ -54,9 +65,7 @@ export default {
 			tracks: [],
 			selectedTrack: null,
 			audio: null,
-			selectedSort: {
-				value: 'by_save_date',
-			},
+			selectedSort: 'by_save_date',
 			sortedBy: [
 				{
 					text: 'Sorted by save date',
@@ -74,6 +83,21 @@ export default {
 		}
 	},
 
+	computed: {
+		sortedTracks() {
+			switch (this.selectedSort) {
+				case 'by_save_date':
+					return _.orderBy(this.tracks, ['added_at'], ['desc'])
+				case 'by_artist':
+					return _.orderBy(this.tracks, track => track.artists[0].name.toLowerCase())
+				case 'by_album':
+					return _.orderBy(this.tracks, track => track.album.name.toLowerCase())
+				default:
+					return this.tracks
+			}
+		},
+	},
+
 	methods: {
 		async getSavedTracks() {
 			const tracks = await getSavedTracks({
@@ -83,19 +107,6 @@ export default {
 			if (tracks.length) {
 				this.tracks = this.tracks.concat(tracks)
 				this.getSavedTracks()
-			}
-		},
-		handleChangeSort(value) {
-			switch (value) {
-				case 'by_save_date':
-					this.tracks = _.orderBy(this.tracks, ['added_at'], ['desc'])
-					break
-				case 'by_artist':
-					this.tracks = _.orderBy(this.tracks, track => track.artists[0].name)
-					break
-				case 'by_album':
-					this.tracks = _.orderBy(this.tracks, track => track.album.name)
-					break
 			}
 		},
 		handleMouseOver(track) {
@@ -131,18 +142,11 @@ export default {
 		margin-right: 40px;
 
 		.header {
-			margin-bottom: 16px;
+			margin-bottom: 20px;
+			padding: 0;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-
-			.title {
-				margin-right: 250px;
-			}
-
-			.select {
-				width: 100px !important;
-			}
 		}
 
 		.tracks {
@@ -168,18 +172,11 @@ export default {
 
 		.track-img {
 			flex: 1;
-			margin-bottom: 20px;
+			margin-bottom: 15px;
 		}
 
 		.track-name {
-			font-size: 18px;
-			margin-bottom: 2px;
-		}
-
-		.track-authors {
-			.author {
-				font-size: 14px;
-			}
+			margin-bottom: 0;
 		}
 	}
 }
