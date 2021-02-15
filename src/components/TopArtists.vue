@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import {getUsersTop} from '../utils/spotify'
+import spotify from '@/utils/spotify'
 
 export default {
 	data() {
@@ -57,7 +57,7 @@ export default {
 
 	methods: {
 		async getTopArtists() {
-			const artists = await getUsersTop({
+			const artists = await spotify.getUsersTop({
 				type: 'artists',
 				offset: this.artists.length,
 				timeRange: this.timeRange,

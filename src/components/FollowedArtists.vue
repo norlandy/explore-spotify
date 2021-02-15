@@ -13,7 +13,6 @@
 						:items="sortedBy"
 						v-model="selectedSort"
 						color="purple"
-						class="select"
 						item-color="purple"
 						solo
 						hide-details
@@ -40,7 +39,7 @@
 <script>
 import _ from 'lodash'
 
-import {getFollowedArtists} from '../utils/spotify'
+import spotify from '@/utils/spotify'
 
 export default {
 	data() {
@@ -81,7 +80,7 @@ export default {
 
 	methods: {
 		async getFollowedArtists() {
-			const artists = await getFollowedArtists({
+			const artists = await spotify.getFollowedArtists({
 				after: this.artists.length ? this.artists[this.artists.length - 1].id : '',
 			})
 

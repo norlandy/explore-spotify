@@ -14,7 +14,6 @@
 							:items="sortedBy"
 							v-model="selectedSort"
 							color="purple"
-							class="select"
 							item-color="purple"
 							solo
 							hide-details
@@ -57,7 +56,7 @@
 <script>
 import _ from 'lodash'
 
-import {getSavedTracks} from '@/utils/spotify'
+import spotify from '@/utils/spotify'
 
 export default {
 	data() {
@@ -100,7 +99,7 @@ export default {
 
 	methods: {
 		async getSavedTracks() {
-			const tracks = await getSavedTracks({
+			const tracks = await spotify.getSavedTracks({
 				offset: this.tracks.length,
 			})
 
@@ -144,9 +143,6 @@ export default {
 		.header {
 			margin-bottom: 20px;
 			padding: 0;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
 		}
 
 		.tracks {

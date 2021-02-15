@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {LOGIN_URL} from '@/utils/spotify'
+import {LOGIN_URL} from '@/utils/auth'
 
 export default {
 	data() {

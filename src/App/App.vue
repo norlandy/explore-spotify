@@ -8,14 +8,13 @@
 			<v-main>
 				<v-container fluid>
 					<v-chip-group active-class="purple--text" column mandatory class="navigation">
-						<v-chip @click="handleChangeAction" data-action="saved_tracks"
-							>Your Saved Tracks</v-chip
-						>
-						<v-chip @click="handleChangeAction" data-action="followed_artists"
-							>Your Followed Artists</v-chip
-						>
-						<v-chip @click="handleChangeAction" data-action="top_tracks">Your Top Tracks</v-chip>
-						<v-chip @click="handleChangeAction" data-action="top_artists">Your Top Artists</v-chip>
+						<v-chip
+							v-for="action in actions"
+							@click="handleChangeAction"
+							:data-value="action.type"
+							:key="action.type"
+							>{{ action.label }}
+						</v-chip>
 					</v-chip-group>
 
 					<div>
@@ -26,6 +25,8 @@
 						<TopTracks v-if="actionType === 'top_tracks'" />
 
 						<TopArtists v-if="actionType === 'top_artists'" />
+
+						<NewReleases v-if="actionType === 'new_releases'" />
 					</div>
 				</v-container>
 			</v-main>
@@ -43,7 +44,9 @@ import TopTracks from '@/components/TopTracks'
 import TopArtists from '@/components/TopArtists'
 import SavedTracks from '@/components/SavedTracks'
 import FollowedArtists from '@/components/FollowedArtists'
-import * as spotify from '@/utils/spotify'
+import NewReleases from '@/components/NewReleases'
+import spotify from '@/utils/spotify'
+import * as auth from '@/utils/auth'
 
 export default {
 	components: {
@@ -54,13 +57,36 @@ export default {
 		FollowedArtists,
 		TopTracks,
 		TopArtists,
+		NewReleases,
 	},
 
 	data() {
 		return {
-			token: localStorage.getItem('token') || '',
+			token: localStorage.getItem('token'),
 			me: null,
 			actionType: 'saved_tracks',
+			actions: [
+				{
+					label: 'Your Saved Tracks',
+					type: 'saved_tracks',
+				},
+				{
+					label: 'Your Followed Artists',
+					type: 'followed_artists',
+				},
+				{
+					label: 'Your Top Tracks',
+					type: 'top_tracks',
+				},
+				{
+					label: 'Your Top Artists',
+					type: 'top_artists',
+				},
+				{
+					label: 'New Releases',
+					type: 'new_releases',
+				},
+			],
 		}
 	},
 
@@ -72,10 +98,10 @@ export default {
 
 	methods: {
 		handleChangeAction(e) {
-			this.actionType = e.currentTarget.dataset.action
+			this.actionType = e.currentTarget.dataset.value
 		},
 		exit() {
-			const url = 'https://www.spotify.com/logout/'
+			const url = auth.LOGOUT_URL
 			const spotifyLogoutWindow = window.open(
 				url,
 				'Spotify Logout',
@@ -94,13 +120,17 @@ export default {
 
 	async mounted() {
 		if (this.token) {
+			spotify.setAccessToken(this.token)
+
 			const me = await spotify.getMe()
 
 			this.me = me
 		} else {
-			const token = spotify.getTokenFromResponse()
+			const token = auth.getTokenFromResponse()
 
 			if (token) {
+				spotify.setAccessToken(token)
+
 				this.token = token
 
 				localStorage.setItem('token', token)
