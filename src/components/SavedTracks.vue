@@ -4,7 +4,7 @@
 			<v-container class="header" fluid>
 				<v-row align="center">
 					<v-col md="6" xs="12">
-						<p class="text-h5 title">Your Saved Tracks</p>
+						<p class="text-h5 mb-0">Your Saved Tracks</p>
 					</v-col>
 
 					<v-spacer></v-spacer>
@@ -35,21 +35,7 @@
 			</div>
 		</div>
 
-		<div class="track-info" v-if="selectedTrack">
-			<img :src="selectedTrack.album.images[0].url" alt="" class="track-img" />
-
-			<p class="track-name text-body-1">{{ selectedTrack.name }}</p>
-
-			<div class="track-authors">
-				<span
-					class="author text-body-2"
-					v-for="(artist, index) in selectedTrack.artists"
-					:key="artist.name"
-				>
-					{{ artist.name }}{{ index !== selectedTrack.artists.length - 1 && ', ' }}
-				</span>
-			</div>
-		</div>
+		<TrackInfo v-if="selectedTrack" :track="selectedTrack" />
 	</div>
 </template>
 
@@ -57,8 +43,12 @@
 import _ from 'lodash'
 
 import spotify from '@/utils/spotify'
+import TrackInfo from './TrackInfo'
 
 export default {
+	components: {
+		TrackInfo,
+	},
 	data() {
 		return {
 			tracks: [],
@@ -130,14 +120,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/variables.scss';
+
 .saved-tracks {
 	display: flex;
 	justify-content: flex-start;
 	align-items: flex-start;
-	width: 100%;
 
 	.track-list {
-		width: 704px;
+		width: $list-width;
 		margin-right: 40px;
 
 		.header {
@@ -151,28 +142,11 @@ export default {
 			line-height: 0;
 
 			.track {
-				width: calc(704px / 22);
-				height: calc(704px / 22);
+				width: calc(#{$list-width} / 22);
+				height: calc(#{$list-width} / 22);
 				background-repeat: no-repeat;
 				background-size: cover;
 			}
-		}
-	}
-
-	.track-info {
-		width: 300px;
-		display: flex;
-		flex-direction: column;
-		position: sticky;
-		top: 100px;
-
-		.track-img {
-			flex: 1;
-			margin-bottom: 15px;
-		}
-
-		.track-name {
-			margin-bottom: 0;
 		}
 	}
 }

@@ -151,9 +151,5 @@ export default {
 	.navigation {
 		margin-bottom: 20px;
 	}
-
-	.title {
-		margin-bottom: 0;
-	}
 }
 </style>

@@ -1,38 +1,44 @@
 <template>
 	<div class="followed-artists">
-		<v-container class="header" fluid>
-			<v-row align="center">
-				<v-col md="6" xs="12">
-					<p class="text-h5 title">Your Followed Artists</p>
-				</v-col>
+		<div class="artists-list">
+			<v-container class="header" fluid>
+				<v-row align="center">
+					<v-col md="6" xs="12">
+						<p class="text-h5 mb-0">Your Followed Artists</p>
+					</v-col>
 
-				<v-spacer></v-spacer>
+					<v-spacer></v-spacer>
 
-				<v-col md="4" xs="12">
-					<v-select
-						:items="sortedBy"
-						v-model="selectedSort"
-						color="purple"
-						item-color="purple"
-						solo
-						hide-details
-					></v-select>
-				</v-col>
-			</v-row>
-		</v-container>
+					<v-col md="4" xs="12">
+						<v-select
+							:items="sortedBy"
+							v-model="selectedSort"
+							color="purple"
+							item-color="purple"
+							solo
+							hide-details
+						></v-select>
+					</v-col>
+				</v-row>
+			</v-container>
 
-		<div class="artists">
-			<div v-for="artist in sortedArtists" :key="artist.id">
-				<div
-					class="artist"
-					:style="{
-						backgroundImage: `url(${artist.images.length && artist.images[2].url})`,
-					}"
-				>
-					<v-icon v-if="!artist.images.length" color="purple" large>mdi-account</v-icon>
+			<div class="artists">
+				<div v-for="artist in sortedArtists" :key="artist.id">
+					<div
+						class="artist"
+						:style="{
+							backgroundImage: `url(${artist.images.length && artist.images[2].url})`,
+						}"
+						@mouseover="handleMouseOver(artist)"
+						@mouseout="handleMouseOut"
+					>
+						<v-icon v-if="!artist.images.length" color="purple" large>mdi-account</v-icon>
+					</div>
 				</div>
 			</div>
 		</div>
+
+		<ArtistInfo v-if="selectedArtist" :artist="selectedArtist" />
 	</div>
 </template>
 
@@ -40,11 +46,17 @@
 import _ from 'lodash'
 
 import spotify from '@/utils/spotify'
+import ArtistInfo from './ArtistInfo'
 
 export default {
+	components: {
+		ArtistInfo,
+	},
 	data() {
 		return {
 			artists: [],
+			audio: null,
+			selectedArtist: null,
 			selectedSort: 'by_name',
 			sortedBy: [
 				{
@@ -89,6 +101,19 @@ export default {
 				this.getFollowedArtists()
 			}
 		},
+		handleMouseOver(artist) {
+			this.selectedArtist = artist
+
+			this.audio = new Audio(artist.track.preview_url)
+			this.audio.volume = 0.5
+			this.audio.play().catch(() => {})
+		},
+		handleMouseOut() {
+			this.audio.pause()
+			this.audio = null
+
+			this.selectedArtist = null
+		},
 	},
 
 	mounted() {
@@ -98,31 +123,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/variables.scss';
+
 .followed-artists {
-	width: 704px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
 
-	.header {
-		margin-bottom: 20px;
-		padding: 0;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-	}
+	.artists-list {
+		width: #{$list-width};
+		margin-right: 40px;
 
-	.artists {
-		display: flex;
-		flex-wrap: wrap;
-
-		.artist {
-			width: calc(704px / 12 - 12px);
-			height: calc(704px / 12 - 12px);
-			background-repeat: no-repeat;
-			background-size: cover;
-			border-radius: 100%;
-			margin: 6px;
+		.header {
+			margin-bottom: 20px;
+			padding: 0;
 			display: flex;
+			justify-content: space-between;
 			align-items: center;
-			justify-content: center;
+		}
+
+		.artists {
+			display: flex;
+			flex-wrap: wrap;
+
+			.artist {
+				width: calc(#{$list-width} / 12 - 12px);
+				height: calc(#{$list-width} / 12 - 12px);
+				background-repeat: no-repeat;
+				background-size: cover;
+				border-radius: 100%;
+				margin: 6px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
 		}
 	}
 }

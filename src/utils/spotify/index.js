@@ -30,7 +30,18 @@ class Spotify {
 			data = await callApi.get(`/me/following?type=artist&limit=50`)
 		}
 
-		return data.artists.items
+		const artists = await Promise.all(
+			data.artists.items.map(async artist => {
+				const track = await this.getArtistTopTrack(artist.id)
+
+				return {
+					...artist,
+					track,
+				}
+			}),
+		)
+
+		return artists
 	}
 
 	async getUsersTop({type = 'tracks', offset = 0, timeRange = 'short_term'}) {
@@ -38,13 +49,51 @@ class Spotify {
 			`https://api.spotify.com/v1/me/top/${type}?offset=${offset}&limit=50&time_range=${timeRange}`,
 		)
 
+		if (type === 'artists') {
+			const artists = await Promise.all(
+				data.items.map(async artist => {
+					const track = await this.getArtistTopTrack(artist.id)
+
+					return {
+						...artist,
+						track,
+					}
+				}),
+			)
+
+			return artists
+		}
+
 		return data.items
 	}
 
 	async getNewReleases({offset}) {
 		const data = await callApi.get(`browse/new-releases?offset=${offset}&limit=50&country=US`)
 
-		return data.albums.items
+		const items = await Promise.all(
+			data.albums.items.map(async item => {
+				const track = await this.getAlbumFirstTrack(item.id)
+
+				return {
+					...item,
+					track,
+				}
+			}),
+		)
+
+		return items
+	}
+
+	async getArtistTopTrack(artistId) {
+		const data = await callApi.get(`/artists/${artistId}/top-tracks?market=US`)
+
+		return data.tracks[0]
+	}
+
+	async getAlbumFirstTrack(albumId) {
+		const data = await callApi.get(`/albums/${albumId}?market=US`)
+
+		return data.tracks.items[0]
 	}
 }
 

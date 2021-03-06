@@ -1,57 +1,69 @@
 <template>
 	<div class="top-artists">
-		<div class="header">
-			<p class="text-h5 title">Your Top Artists</p>
-		</div>
-
-		<div class="sorting">
-			<v-chip-group mandatory active-class="purple--text">
-				<v-chip data-value="short_term" @click="handleChangeTimeRange">
-					Last Month
-				</v-chip>
-				<v-chip data-value="medium_term" @click="handleChangeTimeRange">
-					Last 6 Month
-				</v-chip>
-				<v-chip data-value="long_term" @click="handleChangeTimeRange">
-					All Time
-				</v-chip>
-			</v-chip-group>
-		</div>
-
-		<div class="artists">
-			<div v-if="loading">
-				<v-skeleton-loader
-					v-for="index in 24"
-					:key="index"
-					class="skeleton-loader"
-					type="card"
-					tile
-				></v-skeleton-loader>
+		<div class="artist-list">
+			<div class="header">
+				<p class="text-h5 mb-0">Your Top Artists</p>
 			</div>
 
-			<div v-else v-for="artist in artists" :key="artist.id">
-				<div
-					class="artist"
-					:style="{
-						backgroundImage: `url(${artist.images.length && artist.images[2].url})`,
-					}"
-				>
-					<v-icon v-if="!artist.images.length" color="purple" x-large>mdi-account</v-icon>
+			<div class="sorting">
+				<v-chip-group mandatory active-class="purple--text">
+					<v-chip data-value="short_term" @click="handleChangeTimeRange">
+						Last Month
+					</v-chip>
+					<v-chip data-value="medium_term" @click="handleChangeTimeRange">
+						Last 6 Month
+					</v-chip>
+					<v-chip data-value="long_term" @click="handleChangeTimeRange">
+						All Time
+					</v-chip>
+				</v-chip-group>
+			</div>
+
+			<div class="artists">
+				<div v-if="loading">
+					<v-skeleton-loader
+						v-for="index in 24"
+						:key="index"
+						class="skeleton-loader"
+						type="card"
+						tile
+					></v-skeleton-loader>
+				</div>
+
+				<div v-else v-for="artist in artists" :key="artist.id">
+					<div
+						class="artist"
+						:style="{
+							backgroundImage: `url(${artist.images.length && artist.images[2].url})`,
+						}"
+						@mouseover="handleMouseOver(artist)"
+						@mouseout="handleMouseOut"
+					>
+						<v-icon v-if="!artist.images.length" color="purple" x-large>mdi-account</v-icon>
+					</div>
 				</div>
 			</div>
 		</div>
+
+		<ArtistInfo v-if="selectedArtist" :artist="selectedArtist" />
 	</div>
 </template>
 
 <script>
 import spotify from '@/utils/spotify'
+import ArtistInfo from '@/components/ArtistInfo'
 
 export default {
+	components: {
+		ArtistInfo,
+	},
 	data() {
 		return {
 			loading: false,
 			artists: [],
 			timeRange: 'short_term',
+			selectedArtist: null,
+			audio: null,
 		}
 	},
 
@@ -77,6 +89,19 @@ export default {
 			this.artists = []
 			this.getTopArtists()
 		},
+		handleMouseOver(artist) {
+			this.selectedArtist = artist
+
+			this.audio = new Audio(artist.track.preview_url)
+			this.audio.volume = 0.5
+			this.audio.play().catch(() => {})
+		},
+		handleMouseOut() {
+			this.audio.pause()
+			this.audio = null
+
+			this.selectedArtist = null
+		},
 	},
 
 	mounted() {
@@ -86,39 +111,47 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/variables.scss';
+
 .top-artists {
-	width: 704px;
+	display: flex;
+	align-items: flex-start;
 
-	.header {
-		margin-bottom: 10px;
-	}
+	.artist-list {
+		width: $list-width;
+		margin-right: 40px;
 
-	.sorting {
-		margin-bottom: 10px;
-	}
-
-	.artists {
-		display: flex;
-		flex-wrap: wrap;
-
-		.skeleton-loader {
-			width: calc(704px / 7 - 12px);
-			height: calc(704px / 7 - 12px);
-			border-radius: 100%;
-			margin: 6px;
-			display: inline-block;
+		.header {
+			margin-bottom: 10px;
 		}
 
-		.artist {
-			width: calc(704px / 7 - 12px);
-			height: calc(704px / 7 - 12px);
-			background-repeat: no-repeat;
-			background-size: cover;
-			border-radius: 100%;
-			margin: 6px;
+		.sorting {
+			margin-bottom: 10px;
+		}
+
+		.artists {
 			display: flex;
-			justify-content: center;
-			align-items: center;
+			flex-wrap: wrap;
+
+			.skeleton-loader {
+				width: calc(704px / 7 - 12px);
+				height: calc(704px / 7 - 12px);
+				border-radius: 100%;
+				margin: 6px;
+				display: inline-block;
+			}
+
+			.artist {
+				width: calc(704px / 7 - 12px);
+				height: calc(704px / 7 - 12px);
+				background-repeat: no-repeat;
+				background-size: cover;
+				border-radius: 100%;
+				margin: 6px;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
 		}
 	}
 }

@@ -1,48 +1,58 @@
 <template>
 	<div class="new-releases">
-		<v-container class="header" fluid>
-			<v-row align="center">
-				<v-col md="6" xs="12">
-					<p class="text-h5 title">New Releases</p>
-				</v-col>
+		<div class="new-releases-list">
+			<v-container class="header" fluid>
+				<v-row align="center">
+					<v-col md="6" xs="12">
+						<p class="text-h5 mb-0">New Releases</p>
+					</v-col>
 
-				<v-spacer></v-spacer>
+					<v-spacer></v-spacer>
 
-				<v-col md="4" xs="12">
-					<v-select
-						:items="sortedBy"
-						v-model="selectedSort"
-						color="purple"
-						item-color="purple"
-						solo
-						hide-details
-					></v-select>
-				</v-col>
-			</v-row>
-		</v-container>
+					<v-col md="4" xs="12">
+						<v-select
+							:items="sortedBy"
+							v-model="selectedSort"
+							color="purple"
+							item-color="purple"
+							solo
+							hide-details
+						></v-select>
+					</v-col>
+				</v-row>
+			</v-container>
 
-		<div class="sorting">
-			<v-chip-group mandatory active-class="purple--text">
-				<v-chip data-value="all" @click="handleChangeViewType">
-					All
-				</v-chip>
-				<v-chip data-value="albums" @click="handleChangeViewType">
-					Albums
-				</v-chip>
-				<v-chip data-value="singles" @click="handleChangeViewType">
-					Singles
-				</v-chip>
-				<v-chip data-value="compilations" @click="handleChangeViewType">
-					Compilations
-				</v-chip>
-			</v-chip-group>
-		</div>
+			<div class="sorting">
+				<v-chip-group mandatory active-class="purple--text">
+					<v-chip data-value="all" @click="handleChangeViewType">
+						All
+					</v-chip>
+					<v-chip data-value="albums" @click="handleChangeViewType">
+						Albums
+					</v-chip>
+					<v-chip data-value="singles" @click="handleChangeViewType">
+						Singles
+					</v-chip>
+					<v-chip data-value="compilations" @click="handleChangeViewType">
+						Compilations
+					</v-chip>
+				</v-chip-group>
+			</div>
 
-		<div class="albums">
-			<div v-for="album in sortedAlbums" :key="album.id">
-				<div class="album" :style="{backgroundImage: `url(${album.images[1].url})`}"></div>
+			<div class="albums">
+				<div v-for="album in sortedAlbums" :key="album.id">
+					<div
+						v-if="album.track.preview_url"
+						class="album"
+						:style="{backgroundImage: `url(${album.images[1].url})`}"
+						@mouseenter="handleMouseOver(album)"
+						@mouseout="handleMouseOut"
+					></div>
+				</div>
 			</div>
 		</div>
+
+		<AlbumInfo v-if="selectedAlbum" :album="selectedAlbum" />
 	</div>
 </template>
 
@@ -51,11 +61,18 @@ import _ from 'lodash'
 import moment from 'moment'
 
 import spotify from '@/utils/spotify'
+import AlbumInfo from '@/components/AlbumInfo'
 
 export default {
+	components: {
+		AlbumInfo,
+	},
+
 	data() {
 		return {
 			albums: [],
+			selectedAlbum: null,
+			audio: null,
 			viewType: 'all',
 			sortedBy: [
 				{
@@ -126,6 +143,19 @@ export default {
 		handleChangeViewType(e) {
 			this.viewType = e.currentTarget.dataset.value
 		},
+		async handleMouseOver(album) {
+			this.audio = new Audio(album.track.preview_url)
+			this.audio.volume = 0.5
+			this.audio.play().catch(() => {})
+
+			this.selectedAlbum = album
+		},
+		handleMouseOut() {
+			this.audio.pause()
+			this.audio = null
+
+			this.selectedAlbum = null
+		},
 	},
 
 	mounted() {
@@ -135,27 +165,35 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/assets/variables.scss';
+
 .new-releases {
-	width: 704px;
+	display: flex;
+	align-items: flex-start;
 
-	.header {
-		margin-bottom: 10px;
-		padding: 0;
-	}
+	.new-releases-list {
+		width: $list-width;
+		margin-right: 40px;
 
-	.sorting {
-		margin-bottom: 10px;
-	}
+		.header {
+			margin-bottom: 10px;
+			padding: 0;
+		}
 
-	.albums {
-		display: flex;
-		flex-wrap: wrap;
+		.sorting {
+			margin-bottom: 10px;
+		}
 
-		.album {
-			width: calc(704px / 10);
-			height: calc(704px / 10);
-			background-repeat: no-repeat;
-			background-size: cover;
+		.albums {
+			display: flex;
+			flex-wrap: wrap;
+
+			.album {
+				width: calc(#{$list-width} / 10);
+				height: calc(#{$list-width} / 10);
+				background-repeat: no-repeat;
+				background-size: cover;
+			}
 		}
 	}
 }
