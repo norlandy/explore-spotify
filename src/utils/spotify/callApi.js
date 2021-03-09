@@ -1,12 +1,11 @@
 import axios from 'axios'
 
+import {getNewAccessToken} from '../auth'
+
 let accessToken = ''
 
 const request = axios.create({
 	baseURL: 'https://api.spotify.com/v1',
-	headers: {
-		Authorization: `Bearer ${accessToken}`,
-	},
 })
 
 request.interceptors.request.use(
@@ -15,7 +14,29 @@ request.interceptors.request.use(
 
 		return config
 	},
-	err => console.log(err),
+	err => {
+		Promise.reject(err)
+	},
+)
+request.interceptors.response.use(
+	response => {
+		return response
+	},
+	async err => {
+		const originalRequest = err.config
+
+		if (err.response.status === 401 && !originalRequest._retry) {
+			originalRequest._retry = true
+
+			accessToken = await getNewAccessToken()
+
+			axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+
+			return request(originalRequest)
+		}
+
+		return Promise.reject(err)
+	},
 )
 
 const callApi = async (endpoint, options = {}) => {

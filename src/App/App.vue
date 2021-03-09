@@ -114,33 +114,35 @@ export default {
 				this.me = null
 
 				localStorage.removeItem('token')
+				localStorage.removeItem('refresh_token')
 			}, 2000)
 		},
 	},
 
 	async mounted() {
+		if (!this.token) {
+			const code = auth.getCodeFromURL()
+
+			if (code) {
+				const token = await auth.getAccessToken(code)
+				this.token = token
+
+				const uri = window.location.toString()
+
+				if (uri.indexOf('?') > 0) {
+					const clean_uri = uri.substring(0, uri.indexOf('?'))
+
+					window.history.replaceState({}, document.title, clean_uri)
+				}
+			}
+		}
+
 		if (this.token) {
 			spotify.setAccessToken(this.token)
 
 			const me = await spotify.getMe()
 
 			this.me = me
-		} else {
-			const token = auth.getTokenFromResponse()
-
-			if (token) {
-				spotify.setAccessToken(token)
-
-				this.token = token
-
-				localStorage.setItem('token', token)
-
-				window.location.hash = ''
-
-				const me = await spotify.getMe()
-
-				this.me = me
-			}
 		}
 	},
 }

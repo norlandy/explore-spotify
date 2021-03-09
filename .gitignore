@@ -24,4 +24,5 @@ pnpm-debug.log*
 
 .vercel
 vercel.json
+.vercelignore
 auth.js
