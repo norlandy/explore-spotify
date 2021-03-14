@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import {getNewAccessToken} from '../auth'
+import {getNewAccessToken} from '@/utils/auth'
 
 let accessToken = ''
 

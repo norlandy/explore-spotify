@@ -95,8 +95,6 @@ class Spotify {
 
 		return data.tracks.items[0]
 	}
-
-	exit() {}
 }
 
 export default new Spotify()
