@@ -59,7 +59,7 @@ export default {
 	},
 	data() {
 		return {
-			loading: false,
+			loading: true,
 			artists: [],
 			timeRange: 'short_term',
 			selectedArtist: null,

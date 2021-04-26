@@ -23,7 +23,17 @@
 			</v-container>
 
 			<div class="artists">
-				<div v-for="artist in sortedArtists" :key="artist.id">
+				<div v-if="loading">
+					<v-skeleton-loader
+						v-for="index in 64"
+						:key="index"
+						class="skeleton-loader"
+						type="card"
+						tile
+					></v-skeleton-loader>
+				</div>
+
+				<div v-else v-for="artist in sortedArtists" :key="artist.id">
 					<div
 						class="artist"
 						:style="{
@@ -54,6 +64,7 @@ export default {
 	},
 	data() {
 		return {
+			loading: true,
 			artists: [],
 			audio: null,
 			selectedArtist: null,
@@ -95,6 +106,8 @@ export default {
 			const artists = await spotify.getFollowedArtists({
 				after: this.artists.length ? this.artists[this.artists.length - 1].id : '',
 			})
+
+			this.loading = false
 
 			if (artists.length) {
 				this.artists = this.artists.concat(artists)
@@ -145,6 +158,15 @@ export default {
 		.artists {
 			display: flex;
 			flex-wrap: wrap;
+
+			.skeleton-loader {
+				width: calc(#{$list-width} / 12 - 12px);
+				height: calc(#{$list-width} / 12 - 12px);
+				display: inline-block;
+
+				border-radius: 100%;
+				margin: 6px;
+			}
 
 			.artist {
 				width: calc(#{$list-width} / 12 - 12px);

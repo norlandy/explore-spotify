@@ -56,7 +56,7 @@ export default {
 	},
 	data() {
 		return {
-			loading: false,
+			loading: true,
 			tracks: [],
 			timeRange: 'short_term',
 			selectedTrack: null,

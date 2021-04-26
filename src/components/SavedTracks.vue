@@ -23,7 +23,17 @@
 			</v-container>
 
 			<div class="tracks">
-				<div v-for="track in sortedTracks" :key="track.uid">
+				<div v-if="loading">
+					<v-skeleton-loader
+						v-for="index in 104"
+						:key="index"
+						class="skeleton-loader"
+						type="card"
+						tile
+					></v-skeleton-loader>
+				</div>
+
+				<div v-else v-for="track in sortedTracks" :key="track.uid">
 					<div
 						class="track"
 						v-if="track.preview_url"
@@ -51,6 +61,7 @@ export default {
 	},
 	data() {
 		return {
+			loading: true,
 			tracks: [],
 			selectedTrack: null,
 			audio: null,
@@ -92,6 +103,8 @@ export default {
 			const tracks = await spotify.getSavedTracks({
 				offset: this.tracks.length,
 			})
+
+			this.loading = false
 
 			if (tracks.length) {
 				this.tracks = this.tracks.concat(tracks)
@@ -140,6 +153,12 @@ export default {
 			display: flex;
 			flex-wrap: wrap;
 			line-height: 0;
+
+			.skeleton-loader {
+				width: calc(#{$list-width} / 22);
+				height: calc(#{$list-width} / 22);
+				display: inline-block;
+			}
 
 			.track {
 				width: calc(#{$list-width} / 22);

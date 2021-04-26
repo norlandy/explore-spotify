@@ -40,7 +40,17 @@
 			</div>
 
 			<div class="albums">
-				<div v-for="album in sortedAlbums" :key="album.id">
+				<div v-if="loading">
+					<v-skeleton-loader
+						v-for="index in 44"
+						:key="index"
+						class="skeleton-loader"
+						type="card"
+						tile
+					></v-skeleton-loader>
+				</div>
+
+				<div v-else v-for="album in sortedAlbums" :key="album.id">
 					<div
 						v-if="album.track.preview_url"
 						class="album"
@@ -70,6 +80,7 @@ export default {
 
 	data() {
 		return {
+			loading: true,
 			albums: [],
 			selectedAlbum: null,
 			audio: null,
@@ -135,6 +146,8 @@ export default {
 		async getNewReleases() {
 			const albums = await spotify.getNewReleases({offset: this.albums.length})
 
+			this.loading = false
+
 			if (albums.length) {
 				this.albums = this.albums.concat(albums)
 				this.getNewReleases()
@@ -187,6 +200,12 @@ export default {
 		.albums {
 			display: flex;
 			flex-wrap: wrap;
+
+			.skeleton-loader {
+				width: calc(#{$list-width} / 10);
+				height: calc(#{$list-width} / 10);
+				display: inline-block;
+			}
 
 			.album {
 				width: calc(#{$list-width} / 10);
